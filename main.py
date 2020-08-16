@@ -3,7 +3,7 @@ import argparse
 from datetime import datetime
 from termcolor import colored
 from multiprocessing import Pool
-from Modules.discover import discover
+from Modules.discover import discover, outofscope
 from Modules.create import *
 from Modules.scan import allports
 
@@ -24,6 +24,9 @@ if __name__ == '__main__':
                         help="The name of the project")
     parser.add_argument("-l", "--location", default="/tmp/", dest="project_location",
                         help="Location where to save the project")
+    parser.add_argument("-o", "--outofscope", dest="oos_file",
+                        help="Location of IP's not to scan")
+
 
     args = parser.parse_args()
 
@@ -64,6 +67,11 @@ if __name__ == '__main__':
 #take our scope and get a list of active hosts
     targets = discover(scope, location)
     print(targets)
+
+    if args.oos_file:
+        oos_file = args.oos_file
+        targets = outofscope(oos_file, targets)
+
 
 #create a dir for each host
     creatfiles(location, targets)

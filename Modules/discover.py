@@ -61,3 +61,26 @@ def discover(targets, location):
     print(colored("{0} HOSTS IN TARGET LIST".format(len(host_list)), 'green'))
     return host_list
 
+def outofscope(oos, host_list):
+
+    oos_discovered = []
+    oos_ips = []
+    if os.path.isfile(oos):
+        print('hostfile exists')
+        oos_ips = [line.rstrip('\n') for line in open(oos)]
+        logdata = "THE FOLLOWING IP'S ARE OUT OT SCOPE: {0}".format(oos_ips)
+    else:
+        logdata = "ERROR WITH OUT OF SCOPE FILE: {0}".format(oos)
+
+    print(logdata)
+
+    for ip in oos_ips:
+        if ip in host_list:
+            host_list.remove(ip)
+            oos_discovered.append(ip)
+            print("{0} REMOVED".format(ip))
+    print(host_list)
+    print(colored("THE FOLLOWING IP'S WERE DISCOVERED AND REMOVED FROM SCOPE: {0}".format(oos_discovered), "red"))
+
+    return host_list
+
