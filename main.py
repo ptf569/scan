@@ -1,4 +1,3 @@
-import xml.etree.ElementTree as ET
 import argparse
 from datetime import datetime
 from termcolor import colored
@@ -6,6 +5,7 @@ from multiprocessing import Pool
 from Modules.discover import discover, outofscope
 from Modules.create import *
 from Modules.scan import allports
+from Modules.parser import http
 
 parser = argparse.ArgumentParser("A small program to automate some recon")
 
@@ -49,14 +49,15 @@ if __name__ == '__main__':
 
     if os.path.isdir(location):
         if location.endswith(('/')):
-            print(colored("SAVING PROJECT IN {0}".format(location), "green"))
+            logdata = colored("SAVING PROJECT IN {0} \n".format(location), "green")
         else:
             location = location + '/'
-            print(colored("SAVING PROJECT IN {0}".format(location), "green"))
+            logdata = colored("SAVING PROJECT IN {0} \n".format(location), "green")
     else:
         print("{0} IS NOT A DIRECTORY BOZO!".format(location))
+        logdata = "{0} IS NOT A DIRECTORY BOZO! \n".format(location)
         exit(99)
-
+    appendlog(location, logdata)
 
     projfile(location)
     log = open(location + "scan.log", "a+")
@@ -83,41 +84,12 @@ if __name__ == '__main__':
         t.append(p.starmap(allports, jobs))
 
 
-
     # Our end point
     finish = datetime.now()
-    log = open(location + "scan.log", "a+")
-    log.write("PROGRAM FINISHED AT {0} \n".format(finish))
-    log.close()
+    message = "PROGRAM FINISHED AT {0} \n".format(finish)
+    appendlog(location, message)
+
     print("===========================================\n DONE\n===========================================")
 #===================================================================
 
 
-"""
-tree = ET.parse('/home/p10507925/Tests/pro-data/nmap-scans/full_tcp.xml')
-root = tree.getroot()
-
-d = [
-        {'path': 'address', 'el': 'addr'},
-        {'path': 'hostnames/hostname', 'el': 'name'},
-        {'path': 'os/osmatch/osclass', 'el': 'osfamily'},
-]
-
-
-for i in root.iter('host'):
-    for h in d:
-        e = i.find(h['path'])
-        if e is not None:
-            print((h['path']), e.get(h['el']))
-        else:
-            print((h['path']), "UNKNOWN ")
-
-
-    ports = i.find('ports')
-    for port in ports:
-        if 'portid' in port.attrib:
-            print(port.get('portid'), port.get('protocol'))
-
-        else:
-            print('not a port')
-"""

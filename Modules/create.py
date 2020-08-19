@@ -16,3 +16,9 @@ def creatfiles(location, hosts):
             os.mkdir(location + '/' + host)
 
     return location
+
+def appendlog(location, message):
+    log = open(location + "scan.log", "a+")
+    print(message)
+    log.write(message)
+    log.close()
