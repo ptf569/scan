@@ -48,7 +48,6 @@ def http(location, ip):
                         web.write("{0}:{1} \n".format(ip,port.get('portid')))
                         web.close()
                         ssl = service.get('tunnel')
-                        print(ssl)
                         if ssl:
                             message = "[+] HTTPS SERVICE DISCOVERED: {0}:{1} \n".format(ip,port.get('portid'))
                             appendlog(location, message)
@@ -58,4 +57,3 @@ def http(location, ip):
                 except:
                     print('NO SERVICE IDENTIFIED ON PORT {0}'.format(port.get('portid')))
 
-#http('/root/Tests/House/', '10.57.151.1')

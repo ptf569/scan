@@ -1,11 +1,13 @@
 import argparse
 from datetime import datetime
-from termcolor import colored
 from multiprocessing import Pool
 from Modules.discover import discover, outofscope
 from Modules.create import *
 from Modules.scan import allports
-from Modules.parser import http
+from Modules.lookup import shodanSearch
+import configparser
+import os
+
 
 parser = argparse.ArgumentParser("A small program to automate some recon")
 
@@ -24,13 +26,15 @@ if __name__ == '__main__':
                         help="The name of the project")
     parser.add_argument("-l", "--location", default="/tmp/", dest="project_location",
                         help="Location where to save the project")
-    parser.add_argument("-o", "--outofscope", dest="oos_file",
+    parser.add_argument("-O", "--outofscope", dest="oos_file",
                         help="Location of IP's not to scan")
 
 
     args = parser.parse_args()
-
     start = datetime.now()
+    # check if location is given, if not, to /tmp
+    location = args.project_location
+    location = checkdir(location)
 
     if args.targets:
         scope = [line.rstrip('\n') for line in open(args.targets)]
@@ -38,32 +42,18 @@ if __name__ == '__main__':
     elif args.subnet:
         scope = [args.subnet]
     else:
-        print("No Scope Provided!!")
+        print(location)
+        appendlog(location, colored("[-] NO SCOPE PROVIDED, PLEASE USE EITHER -t <target file> OR -s <subnet> \n", 'red'))
         exit(99)
 
-# check if location is given, if not, to /tmp
-    if args.project_location:
-        location = args.project_location
-    else:
-        print('NO LOCATION SPECIFIED, SAVING TO /tmp/')
 
-    if os.path.isdir(location):
-        if location.endswith(('/')):
-            logdata = colored("SAVING PROJECT IN {0} \n".format(location), "green")
-        else:
-            location = location + '/'
-            logdata = colored("SAVING PROJECT IN {0} \n".format(location), "green")
-    else:
-        print("{0} IS NOT A DIRECTORY BOZO!".format(location))
-        logdata = "{0} IS NOT A DIRECTORY BOZO! \n".format(location)
-        exit(99)
-    appendlog(location, logdata)
+
+
 
     projfile(location)
-    log = open(location + "scan.log", "a+")
-    print(colored("PROGRAM STARTED AT {0}".format(start), 'green'))
-    log.write("PROGRAM STARTED AT {0} \n".format(start))
-    log.close()
+    appendlog(location, "\n\n===================================================================\n "
+                        "[\o/]PROGRAM STARTED AT {0} "
+                        "\n=================================================================== \n \n".format(start))
 
 #take our scope and get a list of active hosts
     targets = discover(scope, location)
@@ -71,7 +61,7 @@ if __name__ == '__main__':
 
     if args.oos_file:
         oos_file = args.oos_file
-        targets = outofscope(oos_file, targets)
+        targets = outofscope(location, oos_file, targets)
 
 
 #create a dir for each host
@@ -83,13 +73,27 @@ if __name__ == '__main__':
     with Pool(int(POOL_SIZE)) as p:
         t.append(p.starmap(allports, jobs))
 
+    ####### LOAD CONFIG FROM OUR INI FILE #######
+    config = configparser.ConfigParser()
+    if os.path.isfile('config.ini'):
+        config.read('config.ini')
+        try:
+            SHODAN_API_KEY = config['SHODAN']['SHODAN_API_KEY']
+            for host in targets:
+                shodanSearch(host, SHODAN_API_KEY, location)
+        except:
+            appendlog(location, 'NO SHODAN KEY, PLEASE ENTER: "SHODAN_API_KEY = <API KEY>" INTO config.ini')
+
+
 
     # Our end point
     finish = datetime.now()
-    message = "PROGRAM FINISHED AT {0} \n".format(finish)
+    message = "===================================================================\n " \
+              "[\o/] PROGRAM FINISHED AT {0} " \
+              "\n=================================================================== \n \n".format(finish)
     appendlog(location, message)
 
-    print("===========================================\n DONE\n===========================================")
+
 #===================================================================
 
 

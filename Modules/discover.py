@@ -4,6 +4,7 @@ import nmap
 import os
 from termcolor import colored
 from datetime import datetime
+from Modules.create import appendlog
 
 nm = nmap.PortScanner()
 
@@ -16,10 +17,10 @@ def discover(targets, location):
     else:
         hl = open(location + "hosts.txt", "w+")
         hl.close()
-    print(host_list)
+    if len(host_list) > 0:
+        appendlog(location, "{0} \n".format(str(host_list)))
     now = datetime.now()
-    print(colored("SCAN STARTED AT {0}".format(now.strftime("%d/%m/%Y %H:%M:%S")), 'green'))
-    print(colored("The scope of our scanning is: {0}".format(targets), 'white'))
+    appendlog(location, colored("[+] DISCOVERY SCAN OF SCOPE {0} STARTED AT {1} \n".format(targets, now), 'green'))
     scan_types = [('arp', '-n -sn -PR --max-rtt-timeout 1000ms'),
                   ('tcpsyn', '-n -sn -PS22-25,53,80,111,135,443,445 --max-rtt-timeout 500ms'),
                   ('tcpack', '-n -sn -PA22-25,53,80,111,135,443,445 --max-rtt-timeout 500ms'),
@@ -41,46 +42,42 @@ def discover(targets, location):
                     dlist = nm.all_hosts()
                     for ip in dlist:
                         if ip not in host_list:
-                            log = open(location + "scan.log", "a+")
-                            print(colored("[+] ADDING HOST: ", 'cyan'), colored("{0} ".format(ip), 'green'))
-                            log.write(colored("[+] ADDING HOST: ", 'cyan'))
-                            log.write(colored("{0} \n".format(ip), 'green'))
-                            log.close()
+                            newhost = colored("[+] DISCOVERED HOST: ", 'cyan') + colored("{0} \n".format(ip), 'green')
+                            appendlog(location, newhost)
                             host_list.append(ip)
                             hl = open(location + "/hosts.txt", "a+")
                             hl.write(ip + "\n")
                             hl.close()
 
                 except:
-                    print(colored("SCAN ERROR WITH SCAN: {0}, MOVING ON".format(s)))
-                    log = open(location + "scan.log", "a+")
-                    log.write(colored("SCAN ERROR WITH SCAN: {0}, MOVING ON \n".format(s)))
-                    log.close()
+                    appendlog(location, colored("SCAN ERROR WITH SCAN: {0}, MOVING ON".format(s)))
         i += 1
 
-    print(colored("{0} HOSTS IN TARGET LIST".format(len(host_list)), 'green'))
+    appendlog(location, colored("{0} HOSTS IN TARGET LIST \n".format(len(host_list)), 'green'))
     return host_list
 
-def outofscope(oos, host_list):
+def outofscope(location, oos, host_list):
 
     oos_discovered = []
     oos_ips = []
     if os.path.isfile(oos):
         print('hostfile exists')
         oos_ips = [line.rstrip('\n') for line in open(oos)]
-        logdata = "THE FOLLOWING IP'S ARE OUT OT SCOPE: {0}".format(oos_ips)
+        logdata = "[-] THE FOLLOWING IP'S ARE OUT OT SCOPE: {0} \n".format(oos_ips)
     else:
-        logdata = "ERROR WITH OUT OF SCOPE FILE: {0}".format(oos)
+        logdata = "ERROR WITH OUT OF SCOPE FILE: {0} \n".format(oos)
 
+    appendlog(location, logdata)
     print(logdata)
 
     for ip in oos_ips:
         if ip in host_list:
             host_list.remove(ip)
             oos_discovered.append(ip)
-            print("{0} REMOVED".format(ip))
-    print(host_list)
-    print(colored("THE FOLLOWING IP'S WERE DISCOVERED AND REMOVED FROM SCOPE: {0}".format(oos_discovered), "red"))
+            appendlog(logdata, colored("{0} REMOVED".format(ip), 'red'))
+    appendlog(location, colored("[-] THE FOLLOWING IP'S WERE DISCOVERED AND REMOVED FROM SCOPE: {0} \n".format(oos_discovered), "red"))
+    scope = colored("[+] TARGETS IN SCOPE FOR SCANNING: ", 'cyan') + colored("{0} \n".format(host_list), 'green')
+    appendlog(location, scope)
 
     return host_list
 
