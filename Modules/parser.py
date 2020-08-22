@@ -31,7 +31,7 @@ def test(location,ip):
                 print('not a port')
 
 def http(location, ip):
-    tree = ET.parse("{0}/{1}/{1}.xml".format(location, ip))
+    tree = ET.parse("{0}/{1}/TCP-{1}.xml".format(location, ip))
     root = tree.getroot()
 
     for i in root.iter('host'):
@@ -42,17 +42,17 @@ def http(location, ip):
                 try:
                     if service.get('name') in ('http') or service.get('name') in ('https'):
                         print("{0}:{1}".format(ip,port.get('portid')))
-                        message = "[+] WEB SERVICE DISCOVERED: {0}:{1} \n".format(ip,port.get('portid'))
+                        message = "[+] WEB SERVICE DISCOVERED: {0}:{1}\n".format(ip,port.get('portid'))
                         appendlog(location, message)
                         web = open(location + "web.txt", "a+")
-                        web.write("{0}:{1} \n".format(ip,port.get('portid')))
+                        web.write("{0}:{1}\n".format(ip,port.get('portid')))
                         web.close()
                         ssl = service.get('tunnel')
-                        if ssl:
-                            message = "[+] HTTPS SERVICE DISCOVERED: {0}:{1} \n".format(ip,port.get('portid'))
+                        if ssl or int(service.get('portid') == 443):
+                            message = "[+] HTTPS SERVICE DISCOVERED: {0}:{1}\n".format(ip,port.get('portid'))
                             appendlog(location, message)
                             ssl = open(location + "https.txt", "a+")
-                            ssl.write("{0}:{1} \n".format(ip, port.get('portid')))
+                            ssl.write("{0}:{1}\n".format(ip, port.get('portid')))
                             ssl.close()
                 except:
                     print('NO SERVICE IDENTIFIED ON PORT {0}'.format(port.get('portid')))

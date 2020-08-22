@@ -18,9 +18,10 @@ def discover(targets, location):
         hl = open(location + "hosts.txt", "w+")
         hl.close()
     if len(host_list) > 0:
-        appendlog(location, "{0} \n".format(str(host_list)))
+        message = colored("[+] HOSTS CURRENTLY IN host.txt: {0}\n".format(str(host_list)), 'green')
+        appendlog(location, message)
     now = datetime.now()
-    appendlog(location, colored("[+] DISCOVERY SCAN OF SCOPE {0} STARTED AT {1} \n".format(targets, now), 'green'))
+    appendlog(location, colored("[+] DISCOVERY SCAN OF SCOPE {0} STARTED AT {1}\n".format(targets, now), 'green'))
     scan_types = [('arp', '-n -sn -PR --max-rtt-timeout 1000ms'),
                   ('tcpsyn', '-n -sn -PS22-25,53,80,111,135,443,445 --max-rtt-timeout 500ms'),
                   ('tcpack', '-n -sn -PA22-25,53,80,111,135,443,445 --max-rtt-timeout 500ms'),
@@ -42,7 +43,7 @@ def discover(targets, location):
                     dlist = nm.all_hosts()
                     for ip in dlist:
                         if ip not in host_list:
-                            newhost = colored("[+] DISCOVERED HOST: ", 'cyan') + colored("{0} \n".format(ip), 'green')
+                            newhost = colored("[+] DISCOVERED HOST: ", 'cyan') + colored("{0}\n".format(ip), 'green')
                             appendlog(location, newhost)
                             host_list.append(ip)
                             hl = open(location + "/hosts.txt", "a+")
@@ -50,10 +51,10 @@ def discover(targets, location):
                             hl.close()
 
                 except:
-                    appendlog(location, colored("SCAN ERROR WITH SCAN: {0}, MOVING ON".format(s)))
+                    appendlog(location, colored("[!] SCAN ERROR WITH SCAN: {0}, MOVING ON\n".format(s), 'red'))
         i += 1
 
-    appendlog(location, colored("{0} HOSTS IN TARGET LIST \n".format(len(host_list)), 'green'))
+    appendlog(location, colored("[+] {0} HOSTS IN TARGET LIST \n[#] DISCOVERY COMPLETE\n".format(len(host_list)), 'green'))
     return host_list
 
 def outofscope(location, oos, host_list):
@@ -61,22 +62,21 @@ def outofscope(location, oos, host_list):
     oos_discovered = []
     oos_ips = []
     if os.path.isfile(oos):
-        print('hostfile exists')
+        appendlog(location, "[#] OUT OF SCOPE FILE\n")
         oos_ips = [line.rstrip('\n') for line in open(oos)]
-        logdata = "[-] THE FOLLOWING IP'S ARE OUT OT SCOPE: {0} \n".format(oos_ips)
+        logdata = "[-] THE FOLLOWING TARGETS ARE OUT OT SCOPE: {0}\n".format(oos_ips)
+        appendlog(location, logdata)
     else:
-        logdata = "ERROR WITH OUT OF SCOPE FILE: {0} \n".format(oos)
-
-    appendlog(location, logdata)
-    print(logdata)
+        logdata = colored("[!]ERROR WITH OUT OF SCOPE FILE: {0}\n".format(oos), 'red')
+        appendlog(location, logdata)
 
     for ip in oos_ips:
         if ip in host_list:
             host_list.remove(ip)
             oos_discovered.append(ip)
-            appendlog(logdata, colored("{0} REMOVED".format(ip), 'red'))
-    appendlog(location, colored("[-] THE FOLLOWING IP'S WERE DISCOVERED AND REMOVED FROM SCOPE: {0} \n".format(oos_discovered), "red"))
-    scope = colored("[+] TARGETS IN SCOPE FOR SCANNING: ", 'cyan') + colored("{0} \n".format(host_list), 'green')
+    if len(oos_discovered) > 0:
+        appendlog(location, colored("[-] THE FOLLOWING IP'S WERE DISCOVERED AND REMOVED FROM SCOPE: {0}\n".format(oos_discovered), "red"))
+    scope = colored("[+] TARGETS IN SCOPE FOR SCANNING: ", 'cyan') + colored("{0}\n".format(host_list), 'green')
     appendlog(location, scope)
 
     return host_list

@@ -10,7 +10,7 @@ def shodanSearch(host, key, location):
         try:
             api = Shodan(key)
             lookup = api.host(host)
-            f = open(location + host + "/SHODAN-" + host + ".txt", "w")
+            f = open(location + host + "/SHO-" + host + ".txt", "w")
 
             # Print general info
             f.write("""

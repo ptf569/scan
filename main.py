@@ -3,7 +3,7 @@ from datetime import datetime
 from multiprocessing import Pool
 from Modules.discover import discover, outofscope
 from Modules.create import *
-from Modules.scan import allports
+from Modules.scan import allports, topudpports, sslscan
 from Modules.lookup import shodanSearch
 import configparser
 import os
@@ -14,7 +14,7 @@ parser = argparse.ArgumentParser("A small program to automate some recon")
 scope = []
 location = ""
 options = "--min-rate 3000 --max-retries 2 --script-timeout 120 --host-timeout 6000"
-POOL_SIZE = 5
+POOL_SIZE = 8
 
 #================ MAIN ========================
 
@@ -28,7 +28,8 @@ if __name__ == '__main__':
                         help="Location where to save the project")
     parser.add_argument("-O", "--outofscope", dest="oos_file",
                         help="Location of IP's not to scan")
-
+    parser.add_argument("-U", "--udp", action="store_true",
+                        help="Perform UDP scan of targets")
 
     args = parser.parse_args()
     start = datetime.now()
@@ -67,13 +68,7 @@ if __name__ == '__main__':
 #create a dir for each host
     creatfiles(location, targets)
 
-#Start our pool of nmap scans
-    t = []
-    jobs = [(target, location, options) for target in targets]
-    with Pool(int(POOL_SIZE)) as p:
-        t.append(p.starmap(allports, jobs))
-
-    ####### LOAD CONFIG FROM OUR INI FILE #######
+####### LOAD CONFIG FROM OUR INI FILE #######
     config = configparser.ConfigParser()
     if os.path.isfile('config.ini'):
         config.read('config.ini')
@@ -84,6 +79,30 @@ if __name__ == '__main__':
         except:
             appendlog(location, 'NO SHODAN KEY, PLEASE ENTER: "SHODAN_API_KEY = <API KEY>" INTO config.ini')
 
+
+#Start our pool of nmap scans
+    scan = []
+
+#TCP
+    tcp = [(target, location, options) for target in targets]
+    with Pool(int(POOL_SIZE)) as p:
+        scan.append(p.starmap(allports, tcp))
+
+    if location + 'https.txt':
+        targets = [line.rstrip('\n') for line in open(location + 'https.txt')]
+        ssl = []
+        scan = [(location, target) for target in targets]
+        with Pool(int(POOL_SIZE)) as p:
+            ssl.append(p.starmap(sslscan, scan))
+
+
+
+
+#UDP
+    if args.udp:
+        udp = [(target, location) for target in targets]
+        with Pool(int(POOL_SIZE)) as p:
+            scan.append(p.starmap(topudpports, udp))
 
 
     # Our end point
