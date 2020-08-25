@@ -41,7 +41,7 @@ def http(location, ip):
                 service = port.find('service')
                 try:
                     if service.get('name') in ('http') or service.get('name') in ('https'):
-                        print("{0}:{1}".format(ip,port.get('portid')))
+                        #print("{0}:{1}".format(ip,port.get('portid')))
                         message = "[+] WEB SERVICE DISCOVERED: {0}:{1}\n".format(ip,port.get('portid'))
                         appendlog(location, message)
                         web = open(location + "web.txt", "a+")

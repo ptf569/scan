@@ -1,4 +1,5 @@
 import argparse
+from termcolor import colored
 from datetime import datetime
 from multiprocessing import Pool
 from Modules.discover import discover, outofscope
@@ -9,17 +10,27 @@ import configparser
 import os
 
 
-parser = argparse.ArgumentParser("A small program to automate some recon")
 
 scope = []
 location = ""
 options = "--min-rate 3000 --max-retries 2 --script-timeout 120 --host-timeout 6000"
 POOL_SIZE = 8
 
+
+header = colored("""                                          
+___________________ _______   _____________  __
+__  ___/  ___/  __ `/_  __ \  ___  __ \_  / / /
+_(__  )/ /__ / /_/ /_  / / /____  /_/ /  /_/ / 
+/____/ \___/ \__,_/ /_/ /_/_(_)  .___/_\__, /  
+                              /_/     /____/   
+
+By PTF569                              """, 'blue')
+
+
 #================ MAIN ========================
 
 if __name__ == '__main__':
-
+    parser = argparse.ArgumentParser("A small program to automate some host discovery and some basic scanning")
     parser.add_argument("-t", "--targets", dest="targets", help="Location of targets file")
     parser.add_argument("-s", "--subnet", dest="subnet", help="Targets subnet")
     parser.add_argument("-n", "--name", dest="project_name",
@@ -32,10 +43,14 @@ if __name__ == '__main__':
                         help="Perform UDP scan of targets")
 
     args = parser.parse_args()
-    start = datetime.now()
     # check if location is given, if not, to /tmp
     location = args.project_location
     location = checkdir(location)
+    start = datetime.now()
+    appendlog(location, header)
+    appendlog(location, "\n\n===================================================================\n "
+                        "[\o/]PROGRAM STARTED AT {0} "
+                        "\n=================================================================== \n".format(start))
 
     if args.targets:
         scope = [line.rstrip('\n') for line in open(args.targets)]
@@ -47,14 +62,8 @@ if __name__ == '__main__':
         appendlog(location, colored("[-] NO SCOPE PROVIDED, PLEASE USE EITHER -t <target file> OR -s <subnet> \n", 'red'))
         exit(99)
 
-
-
-
-
     projfile(location)
-    appendlog(location, "\n\n===================================================================\n "
-                        "[\o/]PROGRAM STARTED AT {0} "
-                        "\n=================================================================== \n \n".format(start))
+
 
 #take our scope and get a list of active hosts
     targets = discover(scope, location)

@@ -1,4 +1,5 @@
 from shodan import Shodan, APIError
+from termcolor import colored
 import ipaddress
 from Modules.create import appendlog
 
@@ -6,7 +7,8 @@ from Modules.create import appendlog
 def shodanSearch(host, key, location):
     ip = ipaddress.ip_address(host)
     if ip.is_global is True:
-        appendlog(location, "[+] {0} IP A GLOBAL IP, ATTEMPTING TO PERFORM SHODAN LOOKUP \n".format(host))
+        appendlog(location, colored("[*] {0} IP A GLOBAL IP, ATTEMPTING TO PERFORM SHODAN LOOKUP \n".format(host),
+                                    'yellow'))
         try:
             api = Shodan(key)
             lookup = api.host(host)
@@ -28,7 +30,8 @@ def shodanSearch(host, key, location):
                             Banner: {1}
         
                     """.format(item['port'], item['data']))
-            appendlog(location, "[+] {0} LOOKUP COMPLETE \n".format(host))
+            appendlog(location, colored("[+] {0} LOOKUP COMPLETE \n".format(host), 'green'))
         except:
-            appendlog(location, "CAN'T GET TO SHODAN RIGHT NOW, YOU'LL HAVE TO DO THIS ANOTHER TIME \n")
+            appendlog(location, colored("[!] CAN'T GET TO SHODAN RIGHT NOW, YOU'LL HAVE TO DO THIS ANOTHER TIME \n",
+                                        'red'))
             print("[-] Error: {0}".format(APIError))
