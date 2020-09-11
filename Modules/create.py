@@ -19,14 +19,14 @@ def projfile(location):
         appendlog(location, colored("[*] {0} ALREADY EXISTS\n".format(location), 'yellow'))
     else:
         os.mkdir(location)
-
-def creatfiles(location, hosts):
-    for host in hosts:
-        if os.path.exists(location + '/' + host):
-            appendlog(location, colored("[*] {0} ALREADY EXISTS IN {1}\n".format(host, location), 'yellow'))
-        else:
-            os.mkdir(location + '/' + host)
     return location
+
+
+def creatfile(location, host):
+    if os.path.exists(location + '/' + host):
+        appendlog(location, colored("[*] {0} ALREADY EXISTS IN {1}\n".format(host, location), 'yellow'))
+    else:
+        os.mkdir(location + '/' + host)
 
 
 def appendlog(location, message):

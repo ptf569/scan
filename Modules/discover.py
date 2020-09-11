@@ -8,7 +8,6 @@ from Modules.create import appendlog
 
 nm = nmap.PortScanner()
 
-
 def discover(targets, location):
     host_list = []
     if os.path.isfile(location + 'hosts.txt'):
