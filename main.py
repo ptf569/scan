@@ -8,13 +8,15 @@ from Modules.scan import allports, topudpports, sslscan, testssl
 from Modules.lookup import shodanSearch
 import configparser
 import os
+import signal
+import sys
 
 
 
 scope = []
 location = ""
-options = "--min-rate 3000 --max-retries 2 --script-timeout 120 --host-timeout 6000"
-POOL_SIZE = 8
+tcpoptions = "--min-rate 3000 --max-retries 2 --script-timeout 120 --host-timeout 6000 -n"
+POOL_SIZE = 2
 
 
 header = colored("""                                          
@@ -27,6 +29,7 @@ _(__  )/ /__ / /_/ /_  / / /____  /_/ /  /_/ /
 By PTF569                              """, 'blue')
 
 
+
 #================ MAIN ========================
 
 if __name__ == '__main__':
@@ -36,7 +39,7 @@ if __name__ == '__main__':
     parser.add_argument("-R", "--rescan", action="store_true",
                         help="Rescan the host even if we detect an nmap xml file")
     parser.add_argument("-n", "--name", dest="project_name",
-                        help="The name of the project")
+                        help="The name of the project") # Not currently in use
     parser.add_argument("-l", "--location", default="/tmp/", dest="project_location",
                         help="Location where to save the project")
     parser.add_argument("-O", "--outofscope", dest="oos_file",
@@ -93,7 +96,7 @@ if __name__ == '__main__':
     scan = []
 
 #TCP
-    tcp = [(target, location, options, rescan) for target in targets]
+    tcp = [(target, location, tcpoptions, rescan) for target in targets]
     with Pool(int(POOL_SIZE)) as p:
         scan.append(p.starmap(allports, tcp))
 
@@ -141,6 +144,8 @@ if __name__ == '__main__':
               "[\o/] PROGRAM FINISHED AT {0} " \
               "\n=================================================================== \n \n".format(finish)
     appendlog(location, message)
+
+
 
 
 #===================================================================

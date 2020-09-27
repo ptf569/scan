@@ -1,7 +1,7 @@
 from datetime import datetime
 from termcolor import colored
 from Modules.create import appendlog, creatfile
-from Modules.parser import http, ports
+from Modules.parser import ports, parse
 import os
 import re
 
@@ -11,21 +11,21 @@ def allports(host, location, options, rescan):
     if os.path.isfile(output + ".xml"):
         if rescan == False:
             appendlog(location, colored("[*] HOST {0} appears to already have nmap output, "
-                                        "use the '-R' option to rescan hosts".format(host), 'yellow'))
+                                        "use the '-R' option to rescan hosts\n".format(host), 'white'))
             return
         else:
-            appendlog(location, colored("[+] PERFORMING RESCAN ON HOST: {0}".format(host), 'green'))
+            appendlog(location, colored("[+] PERFORMING RESCAN ON HOST: {0}\n".format(host), 'green'))
 
     creatfile(location, host)
     start = datetime.now()
-    message = colored("[*] {0} : TCP SCAN STARTED AT {1}\n".format(host, start), 'yellow')
+    message = colored("[*] {0} : TCP SCAN STARTED AT {1}\n".format(host, start), 'white')
     appendlog(location, message)
 
 
-    scan = "nmap {0} -Pn -sSV -n -r -O {1} -p- -oA {2}".format(host, options, output)
-    appendlog(location, colored("[+] PERFORMING TCP SCAN: {0}\n".format(scan), 'magenta'))
+    scan = "nmap {0} -Pn -sSV -r -O {1} -p- -oA {2} > /dev/null".format(host, options, output)
+    appendlog(location, colored("[+] PERFORMING TCP SCAN: {0}\n".format(scan), 'yellow'))
     os.system(scan)
-    http(location, host)
+    parse(location, host)
     ports(location, host)
 
     finish = datetime.now()
@@ -38,10 +38,10 @@ def topudpports(host, location):
     appendlog(location, message)
 
     output = location + host + '/UDP-' + host
-    scan = "nmap {0} -Pn -sU -n -r -oA {1}".format(host, output)
+    scan = "nmap {0} -Pn -sU -r -oA {1}".format(host, output)
     appendlog(location, colored("[+] PERFORMING UDP SCAN: {0}\n".format(scan), 'magenta'))
     os.system(scan)
-    http(location, host)
+    parse(location, host)
 
     finish = datetime.now()
     message = colored("[*] {0} : UDP SCAN FINISHED AT {1}\n".format(host, finish), 'green')
