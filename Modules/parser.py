@@ -211,10 +211,10 @@ def ports(location, ip):
             appendlog(location, message)
 
 
-loc = '/Users/pentest/Documents/Tests/House/'
-tgt = '10.57.151.117'
+#loc = '/Users/pentest/Documents/Tests/House/'
+#tgt = '10.57.151.117'
 
-parse(loc, tgt)
+#parse(loc, tgt)
 
 #ports(loc, tgt)
 
