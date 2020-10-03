@@ -169,24 +169,24 @@ def parse(location, ip):
         try:
             for port in scan['scan'][ip]['tcp']:
                 if 'http' in scan['scan'][ip]['tcp'][port]['name']:
-                    message = colored("[+] WEB SERVICE DISCOVERED: {0}:{1}\n".format(ip, port), 'white')
+                    message = colored("[+] WEB SERVICE DISCOVERED: {0}:{1}".format(ip, port), 'white')
                     appendlog(location, message)
                     web = open(location + "web.txt", "a+")
                     web.write("{0}:{1}\n".format(ip, port))
                     web.close()
                     if scan['scan'][ip]['tcp'][port]['tunnel']:
-                        message = colored("[+] HTTPS SERVICE DISCOVERED: {0}:{1}\n".format(ip, port), 'white')
+                        message = colored("[+] HTTPS SERVICE DISCOVERED: {0}:{1}".format(ip, port), 'white')
                         appendlog(location, message)
                         ssl = open(location + "https.txt", "a+")
                         ssl.write("{0}:{1}\n".format(ip, port))
                         ssl.close()
 
                 if port in [139, 445]:
-                    message = colored("[+] POSSIBLE SMB SERVICE DISCOVERED: {0}:{1}\n".format(ip, port), 'white')
+                    message = colored("[+] POSSIBLE SMB SERVICE DISCOVERED: {0}:{1}".format(ip, port), 'white')
                     if 'netbios-ssn' in scan['scan'][ip]['tcp'][port]['name']:
-                        message = colored("[+] SMB NETBIOS DISCOVERED: {0}:{1}\n".format(ip, port), 'white')
+                        message = colored("[+] SMB NETBIOS DISCOVERED: {0}:{1}".format(ip, port), 'white')
                     if 'microsoft-ds' in scan['scan'][ip]['tcp'][port]['name']:
-                        message = colored("[+] SMB SERVER DISCOVERED: {0}:{1}\n".format(ip, port), 'white')
+                        message = colored("[+] SMB SERVER DISCOVERED: {0}:{1}".format(ip, port), 'white')
                     smb = open(location + "smb.txt", "a+")
                     smb.write("{0}:{1}\n".format(ip, port))
                     smb.close()
@@ -194,10 +194,10 @@ def parse(location, ip):
 
 
         except:
-            message = colored("[-] NO TCP PORTS ON HOST: {0}\n".format(ip), 'magenta')
+            message = colored("[-] NO TCP PORTS ON HOST: {0}".format(ip), 'magenta')
             appendlog(location, message)
     else:
-        message = colored("[-] NO SCAN DATA ON HOST: {0}\n".format(ip), 'magenta')
+        message = colored("[-] NO SCAN DATA ON HOST: {0}".format(ip), 'magenta')
         appendlog(location, message)
 
 def ports(location, ip):
@@ -207,7 +207,7 @@ def ports(location, ip):
             for port in scan['scan'][ip]['tcp']:
                 print(port)
         except:
-            message = colored("[-] NO TCP PORTS ON HOST: {0}\n".format(ip), 'magenta')
+            message = colored("[-] NO TCP PORTS ON HOST: {0}".format(ip), 'magenta')
             appendlog(location, message)
 
 

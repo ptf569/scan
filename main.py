@@ -50,12 +50,13 @@ if __name__ == '__main__':
     args = parser.parse_args()
     # check if location is given, if not, to /tmp
     location = args.project_location
-    location = checkdir(location)
+
     start = datetime.now()
     appendlog(location, header)
     appendlog(location, "\n\n===================================================================\n "
                         "[\o/]PROGRAM STARTED AT {0} "
                         "\n=================================================================== \n".format(start))
+    location = checkdir(location)
 
     if args.targets:
         scope = [line.rstrip('\n') for line in open(args.targets)]
@@ -64,7 +65,7 @@ if __name__ == '__main__':
         scope = [args.subnet]
     else:
         print(location)
-        appendlog(location, colored("[-] NO SCOPE PROVIDED, PLEASE USE EITHER -t <target file> OR -s <subnet> \n", 'red'))
+        appendlog(location, colored("[-] NO SCOPE PROVIDED, PLEASE USE EITHER -t <target file> OR -s <subnet>", 'red'))
         exit(99)
 
     projfile(location)
@@ -142,7 +143,7 @@ if __name__ == '__main__':
     finish = datetime.now()
     message = "===================================================================\n " \
               "[\o/] PROGRAM FINISHED AT {0} " \
-              "\n=================================================================== \n \n".format(finish)
+              "\n=================================================================== \n".format(finish)
     appendlog(location, message)
 
 
