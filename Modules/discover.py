@@ -33,26 +33,32 @@ def discover(targets, location):
                   ]
 
     i = 0
-    while i < 2:
-        for s in scan_types:
-            for t in targets:
-                try:
-                    print(colored("RUNNING {0} DISCOVERY SCAN..".format(s[0].upper()), 'cyan'))
-                    nm.scan(hosts=t, arguments=s[1])
-                    dlist = nm.all_hosts()
-                    for ip in dlist:
-                        if ip not in host_list:
-                            newhost = colored("[+] {0} SCAN DISCOVERED HOST: ".format(s[0].upper()), 'cyan') + \
-                                      colored("{0}\n".format(ip), 'green')
-                            appendlog(location, newhost)
-                            host_list.append(ip)
-                            hl = open(location + "/hosts.txt", "a+")
-                            hl.write(ip + "\n")
-                            hl.close()
+    s = ''
+    try:
+        while i < 2:
+            for s in scan_types:
+                for t in targets:
+                        print(colored("RUNNING {0} DISCOVERY SCAN..".format(s[0].upper()), 'cyan'))
+                        nm.scan(hosts=t, arguments=s[1])
+                        dlist = nm.all_hosts()
+                        for ip in dlist:
+                            if ip not in host_list:
+                                newhost = colored("[+] {0} SCAN DISCOVERED HOST: ".format(s[0].upper()), 'cyan') + \
+                                          colored("{0}".format(ip), 'green')
+                                appendlog(location, newhost)
+                                host_list.append(ip)
+                                hl = open(location + "/hosts.txt", "a+")
+                                hl.write(ip + "\n")
+                                hl.close()
+            i += 1
 
-                except:
-                    appendlog(location, colored("[!] SCAN ERROR WITH SCAN: {0}, MOVING ON...".format(s), 'red'))
-        i += 1
+    except KeyboardInterrupt:
+        appendlog(location, colored("[!] KEYBOARD INTERRUPT, SKIPPING DISCOVERY AND MOVING ON WITH WHAT WE GOT...".format(s), 'red'))
+        return host_list
+        pass
+
+    except:
+        appendlog(location, colored("[!] SCAN ERROR WITH SCAN: {0}, MOVING ON...".format(s), 'red'))
 
     appendlog(location, colored("[*] {0} HOSTS IN TARGET LIST \n[#] DISCOVERY COMPLETE".format(len(host_list)),
                                 'green'))
