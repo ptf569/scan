@@ -204,15 +204,30 @@ def ports(location, ip):
     scan = scandata(location, ip)
     if scan['scan']:
         try:
+            portdata = {}
             for port in scan['scan'][ip]['tcp']:
-                print(port)
+                portdata[port] = [scan['scan'][ip]['tcp'][port]['state'], scan['scan'][ip]['tcp'][port]['name'],
+                                  scan['scan'][ip]['tcp'][port]['product'], scan['scan'][ip]['tcp'][port]['version']]
+            #print(portdata)
+#----- SCAN TABLE
+            print("\n\nHOST: {0} \n".format(ip))
+
+            print("{:<8} {:<10} {:<15} {:<20}".format('PORT', 'STATE', 'SERVICE', 'VERSION'))
+            print("{:<8} {:<10} {:<15} {:<20}".format('----', '-----', '-------', '-------'))
+            for k, v in portdata.items():
+                print("{:<8} {:<10} {:<15} {:<20}".format(k, v[0], v[1], v[2]))
+
+            print("\nOS: {0} \nACCURACY: {1}\n\n".format(scan['scan'][ip]['osclass'][0]['vendor'],
+                                                     scan['scan'][ip]['osclass'][0]['accuracy']))
+
         except:
             message = colored("[-] NO TCP PORTS ON HOST: {0}".format(ip), 'magenta')
             appendlog(location, message)
 
 
 #loc = '/Users/pentest/Documents/Tests/House/'
-#tgt = '10.57.151.117'
+loc = '/root/Tests/House/'
+tgt = '10.57.151.1'
 
 #parse(loc, tgt)
 

@@ -52,11 +52,13 @@ if __name__ == '__main__':
     location = args.project_location
 
     start = datetime.now()
+
+    location = checkdir(location)
     appendlog(location, header)
     appendlog(location, "\n\n===================================================================\n "
                         "[\o/]PROGRAM STARTED AT {0} "
                         "\n=================================================================== \n".format(start))
-    location = checkdir(location)
+
 
     if args.targets:
         scope = [line.rstrip('\n') for line in open(args.targets)]
