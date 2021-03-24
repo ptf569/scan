@@ -1,10 +1,11 @@
 # scan
-Network scanning script to drive recon tools
+Network scanning script to drive recon tools.
 
 Install with ```bash pip3 install -r requirements.txt```
 
 ```bash
-usage: A small program to automate some host discovery and some basic scanning [-h] [-t TARGETS] [-s SUBNET] [-R] [-n PROJECT_NAME] [-l PROJECT_LOCATION] [-O OOS_FILE] [-U]
+./main.py -h                                                                                                                                                                                                                       130 ⨯
+usage: A small program to automate some host discovery and some basic scanning [-h] [-t TARGETS] [-s SUBNET] [-R] [-n PROJECT_NAME] [-l PROJECT_LOCATION] [-O OOS_FILE] [-U] [-T THREADS] [-y TESTSSL] [-z SHODAN]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -20,6 +21,13 @@ optional arguments:
   -O OOS_FILE, --outofscope OOS_FILE
                         Location of IP's not to scan
   -U, --udp             Perform UDP scan of targets
+  -T THREADS, --threads THREADS
+                        Number of concurrent nmap scans. Default is 5
+  -y TESTSSL, --testssl TESTSSL
+                        Location of testssl.sh
+  -z SHODAN, --shodan SHODAN
+                        Shodan API key
+
 
 ```
 
@@ -27,4 +35,8 @@ Required tools:
 
  - nmap
  - sslscan
+
+Optional:
+ - testssl.sh
+ - Shodan.io API key
 

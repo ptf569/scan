@@ -5,13 +5,13 @@ from termcolor import colored
 from datetime import datetime
 from multiprocessing import Pool
 from Modules import *
-import configparser
 import os
 
 scope = []
 location = ""
 tcpoptions = "--min-rate 3000 --max-retries 2 --script-timeout 120 --host-timeout 6000 -n"
-
+SHODAN_API_KEY = ""
+TESTSSL = ""
 
 
 header = colored("""                                          
@@ -44,6 +44,10 @@ if __name__ == '__main__':
                         help="Perform UDP scan of targets")
     parser.add_argument("-T", "--threads", dest="threads", default=5,
                         help="Number of concurrent nmap scans. Default is 5")
+    parser.add_argument("-y", "--testssl", dest="testssl",
+                        help="Location of testssl.sh")
+    parser.add_argument("-z", "--shodan", dest="shodan",
+                        help="Shodan API key")
 
     args = parser.parse_args()
     # check if location is given, if not, to /tmp
@@ -57,7 +61,6 @@ if __name__ == '__main__':
                         "[\o/]PROGRAM STARTED AT {0} "
                         "\n=================================================================== \n".format(start))
 
-
     if args.targets:
         scope = [line.rstrip('\n') for line in open(args.targets)]
         print(scope)
@@ -68,13 +71,16 @@ if __name__ == '__main__':
         create.appendlog(location, colored("[-] NO SCOPE PROVIDED, PLEASE USE EITHER -t <target file> OR -s <subnet>", 'red'))
         exit(99)
 
+    if args.testssl:
+        TESTSSL = args.testssl
+    if args.shodan:
+        SHODAN_API_KEY = args.shodan
+
     POOL_SIZE = args.threads
 
     create.projfile(location)
 
-
-#take our scope and get a list of active hosts
-
+# take our scope and get a list of active hosts
     targets = discover.discover(scope, location)
     rescan = args.rescan
 
@@ -82,27 +88,21 @@ if __name__ == '__main__':
         oos_file = args.oos_file
         targets = scans.outofscope(location, oos_file, targets)
 
-
-####### LOAD CONFIG FROM OUR INI FILE #######
-    config = configparser.ConfigParser()
-    if os.path.isfile('config.ini'):
-        config.read('config.ini')
-        try:
-            SHODAN_API_KEY = config['SHODAN']['SHODAN_API_KEY']
-            for host in targets:
-                lookup.shodanSearch(host, SHODAN_API_KEY, location)
-        except:
-            create.appendlog(location, 'NO SHODAN KEY, PLEASE ENTER: "SHODAN_API_KEY = <API KEY>" INTO config.ini')
+# ###### LOAD CONFIG FROM OUR INI FILE #######
+    try:
+        for host in targets:
+            lookup.shodanSearch(host, SHODAN_API_KEY, location)
+    except:
+        create.appendlog(location, 'NO SHODAN KEY, PLEASE ENTER YOUR API KEY ON LINE 13 OF main.py')
 
 
-#Start our pool of nmap scans
+# Start our pool of nmap scans
     scan = []
 
-#TCP
+# TCP
     tcp = [(target, location, tcpoptions, rescan) for target in targets]
     with Pool(int(POOL_SIZE)) as p:
         scan.append(p.starmap(scans.allports, tcp))
-
 
     if os.path.isfile(location + "https.txt"):
         ips = [line.rstrip('\n') for line in open(location + 'https.txt')]
@@ -117,40 +117,31 @@ if __name__ == '__main__':
         https.close()
 
         ssl = []
-        TESTSSL = False
 
-        if config.has_option('TOOLS', 'TESTSSL'):
-            TESTSSL = config['TOOLS']['TESTSSL']
-
-        if TESTSSL is not False:
+        if TESTSSL:
             scan = [(TESTSSL, location, target, rescan) for target in targets]
             with Pool(int(POOL_SIZE)) as p:
                 ssl.append(p.starmap(scans.testssl, scan))
 
         else:
+            print('If you rather testsslsh, please enter its location on line 14, or use ')
             scan = [(location, target, rescan) for target in targets]
             with Pool(int(POOL_SIZE)) as p:
                 ssl.append(p.starmap(scans.sslscan, scan))
 
-
-
-#UDP
+# UDP
     if args.udp:
         udp = [(target, location) for target in targets]
         with Pool(int(POOL_SIZE)) as p:
             scan.append(p.starmap(scan.topudpports, udp))
 
-
-    # Our end point
+# Our end point
     finish = datetime.now()
     message = "===================================================================\n " \
               "[\o/] PROGRAM FINISHED AT {0} " \
               "\n=================================================================== \n".format(finish)
     create.appendlog(location, message)
 
-
-
-
-#===================================================================
+# ===================================================================
 
 
