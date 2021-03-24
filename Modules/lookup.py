@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
+
 from shodan import Shodan, APIError
 from termcolor import colored
 import ipaddress
-from Modules.create import appendlog
+from .create import appendlog
 
 
 def shodanSearch(host, key, location):

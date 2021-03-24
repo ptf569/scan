@@ -1,22 +1,17 @@
+#!/usr/bin/env python3
+
 import argparse
 from termcolor import colored
 from datetime import datetime
 from multiprocessing import Pool
-from Modules.discover import discover, outofscope
-from Modules.create import *
-from Modules.scan import allports, topudpports, sslscan, testssl
-from Modules.lookup import shodanSearch
+from Modules import *
 import configparser
 import os
-import signal
-import sys
-
-
 
 scope = []
 location = ""
 tcpoptions = "--min-rate 3000 --max-retries 2 --script-timeout 120 --host-timeout 6000 -n"
-POOL_SIZE = 2
+
 
 
 header = colored("""                                          
@@ -29,10 +24,11 @@ _(__  )/ /__ / /_/ /_  / / /____  /_/ /  /_/ /
 By PTF569                              """, 'blue')
 
 
-
 #================ MAIN ========================
 
 if __name__ == '__main__':
+    if os.geteuid() != 0:
+        print(colored("Jeepers Creepers Batman, you need to run me as root!\n\nLets try that again shall we!\n", 'red'))
     parser = argparse.ArgumentParser("A small program to automate some host discovery and some basic scanning")
     parser.add_argument("-t", "--targets", dest="targets", help="Location of targets file")
     parser.add_argument("-s", "--subnet", dest="subnet", help="Targets subnet")
@@ -46,6 +42,8 @@ if __name__ == '__main__':
                         help="Location of IP's not to scan")
     parser.add_argument("-U", "--udp", action="store_true",
                         help="Perform UDP scan of targets")
+    parser.add_argument("-T", "--threads", dest="threads", default=5,
+                        help="Number of concurrent nmap scans. Default is 5")
 
     args = parser.parse_args()
     # check if location is given, if not, to /tmp
@@ -53,9 +51,9 @@ if __name__ == '__main__':
 
     start = datetime.now()
 
-    location = checkdir(location)
-    appendlog(location, header)
-    appendlog(location, "\n\n===================================================================\n "
+    location = create.checkdir(location)
+    create.appendlog(location, header)
+    create.appendlog(location, "\n\n===================================================================\n "
                         "[\o/]PROGRAM STARTED AT {0} "
                         "\n=================================================================== \n".format(start))
 
@@ -67,20 +65,22 @@ if __name__ == '__main__':
         scope = [args.subnet]
     else:
         print(location)
-        appendlog(location, colored("[-] NO SCOPE PROVIDED, PLEASE USE EITHER -t <target file> OR -s <subnet>", 'red'))
+        create.appendlog(location, colored("[-] NO SCOPE PROVIDED, PLEASE USE EITHER -t <target file> OR -s <subnet>", 'red'))
         exit(99)
 
-    projfile(location)
+    POOL_SIZE = args.threads
+
+    create.projfile(location)
 
 
 #take our scope and get a list of active hosts
 
-    targets = discover(scope, location)
+    targets = discover.discover(scope, location)
     rescan = args.rescan
 
     if args.oos_file:
         oos_file = args.oos_file
-        targets = outofscope(location, oos_file, targets)
+        targets = scans.outofscope(location, oos_file, targets)
 
 
 ####### LOAD CONFIG FROM OUR INI FILE #######
@@ -90,9 +90,9 @@ if __name__ == '__main__':
         try:
             SHODAN_API_KEY = config['SHODAN']['SHODAN_API_KEY']
             for host in targets:
-                shodanSearch(host, SHODAN_API_KEY, location)
+                lookup.shodanSearch(host, SHODAN_API_KEY, location)
         except:
-            appendlog(location, 'NO SHODAN KEY, PLEASE ENTER: "SHODAN_API_KEY = <API KEY>" INTO config.ini')
+            create.appendlog(location, 'NO SHODAN KEY, PLEASE ENTER: "SHODAN_API_KEY = <API KEY>" INTO config.ini')
 
 
 #Start our pool of nmap scans
@@ -101,7 +101,7 @@ if __name__ == '__main__':
 #TCP
     tcp = [(target, location, tcpoptions, rescan) for target in targets]
     with Pool(int(POOL_SIZE)) as p:
-        scan.append(p.starmap(allports, tcp))
+        scan.append(p.starmap(scans.allports, tcp))
 
 
     if os.path.isfile(location + "https.txt"):
@@ -125,12 +125,12 @@ if __name__ == '__main__':
         if TESTSSL is not False:
             scan = [(TESTSSL, location, target, rescan) for target in targets]
             with Pool(int(POOL_SIZE)) as p:
-                ssl.append(p.starmap(testssl, scan))
+                ssl.append(p.starmap(scans.testssl, scan))
 
         else:
             scan = [(location, target, rescan) for target in targets]
             with Pool(int(POOL_SIZE)) as p:
-                ssl.append(p.starmap(sslscan, scan))
+                ssl.append(p.starmap(scans.sslscan, scan))
 
 
 
@@ -138,7 +138,7 @@ if __name__ == '__main__':
     if args.udp:
         udp = [(target, location) for target in targets]
         with Pool(int(POOL_SIZE)) as p:
-            scan.append(p.starmap(topudpports, udp))
+            scan.append(p.starmap(scan.topudpports, udp))
 
 
     # Our end point
@@ -146,7 +146,7 @@ if __name__ == '__main__':
     message = "===================================================================\n " \
               "[\o/] PROGRAM FINISHED AT {0} " \
               "\n=================================================================== \n".format(finish)
-    appendlog(location, message)
+    create.appendlog(location, message)
 
 
 

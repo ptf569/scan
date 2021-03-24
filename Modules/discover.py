@@ -1,10 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import nmap
 import os
 from termcolor import colored
 from datetime import datetime
-from Modules.create import appendlog
+from .create import appendlog
 
 nm = nmap.PortScanner()
 

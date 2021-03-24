@@ -1,5 +1,8 @@
+#!/usr/bin/env python3
+
 import os
 from termcolor import colored
+
 
 def checkdir(location):
     if os.path.isdir(location):
@@ -13,6 +16,7 @@ def checkdir(location):
         appendlog(location, colored("[!] {0} IS NOT A DIRECTORY BOZO!".format(location), 'red'))
         exit(99)
     return location
+
 
 def projfile(location):
     if os.path.exists(location):

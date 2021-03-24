@@ -1,5 +1,7 @@
+#!/usr/bin/env python3
+
 import xml.dom.minidom
-from Modules.create import appendlog
+from .create import appendlog
 from termcolor import colored
 
 class PortScannerHostDict(dict):

@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
+
 from datetime import datetime
 from termcolor import colored
-from Modules.create import appendlog, creatfile
-from Modules.parser import ports, parse
+from .create import appendlog, creatfile
+from .parser import ports, parse
 import os
 import re
 
@@ -31,6 +33,7 @@ def allports(host, location, options, rescan):
     finish = datetime.now()
     message = colored("[*] {0} : TCP SCAN FINISHED AT {1}".format(host, finish), 'green')
     appendlog(location, message)
+
 
 def topudpports(host, location):
     start = datetime.now()
