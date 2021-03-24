@@ -1,4 +1,5 @@
-# scan
+# scan.py
+
 Network scanning script to drive recon tools.
 
 Install with ```bash pip3 install -r requirements.txt```
