@@ -98,5 +98,9 @@ def sslscan(location, target, rescan):
 
     sslscan = "sslscan --xml={2}{1}/SSL-{3}.xml {0} {4} {2}{1}/SSL-{3}.txt".format(target, host, location, op, app)
     print(sslscan)
-    os.system(sslscan)
+    try:
+        os.system(sslscan)
+    except:
+        message = colored("Looks like sslscan is not installed", 'red')
+        appendlog(location, message)
 
