@@ -28,7 +28,8 @@ optional arguments:
                         Location of testssl.sh
   -z SHODAN, --shodan SHODAN
                         Shodan API key
-
+  -d DISCORD, --discord DISCORD
+                        Discord webhook
 
 ```
 
