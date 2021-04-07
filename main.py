@@ -14,6 +14,7 @@ SHODAN_API_KEY = ""
 TESTSSL = ""
 
 
+
 header = colored("""                                          
 ___________________ _______   _____________  __
 __  ___/  ___/  __ `/_  __ \  ___  __ \_  / / /
@@ -29,6 +30,7 @@ By PTF569                              """, 'blue')
 if __name__ == '__main__':
     if os.geteuid() != 0:
         print(colored("Jeepers Creepers Batman, you need to run me as root!\n\nLets try that again shall we!\n", 'red'))
+    create.initialize()
     parser = argparse.ArgumentParser("A small program to automate some host discovery and some basic scanning")
     parser.add_argument("-t", "--targets", dest="targets", help="Location of targets file")
     parser.add_argument("-s", "--subnet", dest="subnet", help="Targets subnet")
@@ -40,14 +42,12 @@ if __name__ == '__main__':
                         help="Location where to save the project")
     parser.add_argument("-O", "--outofscope", dest="oos_file",
                         help="Location of IP's not to scan")
-    parser.add_argument("-U", "--udp", action="store_true",
-                        help="Perform UDP scan of targets")
+    parser.add_argument("-U", "--udp", action="store_true", help="Perform UDP scan of targets")
     parser.add_argument("-T", "--threads", dest="threads", default=5,
                         help="Number of concurrent nmap scans. Default is 5")
-    parser.add_argument("-y", "--testssl", dest="testssl",
-                        help="Location of testssl.sh")
-    parser.add_argument("-z", "--shodan", dest="shodan",
-                        help="Shodan API key")
+    parser.add_argument("-y", "--testssl", dest="testssl", help="Location of testssl.sh")
+    parser.add_argument("-z", "--shodan", dest="shodan", help="Shodan API key")
+    parser.add_argument("-d", "--discord", dest="discord", help="Discord webhook")
 
     args = parser.parse_args()
     # check if location is given, if not, to /tmp
@@ -75,10 +75,15 @@ if __name__ == '__main__':
         TESTSSL = args.testssl
     if args.shodan:
         SHODAN_API_KEY = args.shodan
+    if args.discord:
+        create.webhook = args.discord
+        create.welcome(create.webhook)
 
     POOL_SIZE = args.threads
 
     create.projfile(location)
+
+
 
 # take our scope and get a list of active hosts
     targets = discover.discover(scope, location)
@@ -141,6 +146,7 @@ if __name__ == '__main__':
               "[\o/] PROGRAM FINISHED AT {0} " \
               "\n=================================================================== \n".format(finish)
     create.appendlog(location, message)
+    create.discord(create.webhook, "Complete", "[\o/] PROGRAM FINISHED AT {0} ".format(finish))
 
 # ===================================================================
 
