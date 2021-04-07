@@ -41,4 +41,5 @@ Required tools:
 Optional:
  - testssl.sh
  - Shodan.io API key
+ - Discord webhook
 
