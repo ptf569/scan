@@ -7,6 +7,7 @@ name = "pypi"
 python-nmap = "*"
 termcolor = "*"
 shodan = "*"
+discord-webhook = "*"
 
 [dev-packages]
 
