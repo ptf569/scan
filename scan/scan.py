@@ -39,7 +39,7 @@ if __name__ == '__main__':
                         help="Rescan the host even if we detect an nmap xml file")
     parser.add_argument("-n", "--name", dest="project_name",
                         help="The name of the project") # Not currently in use
-    parser.add_argument("-l", "--location", default="/tmp/", dest="project_location",
+    parser.add_argument("-l", "--location", default="/tmp", dest="project_location",
                         help="Location where to save the project")
     parser.add_argument("-O", "--outofscope", dest="oos_file",
                         help="Location of IP's not to scan")
@@ -52,7 +52,12 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     # check if location is given, if not, to /tmp
-    location = args.project_location
+    if args.project_name:
+        location = args.project_location + '/' + args.project_name + '/'
+    else:
+        DTG = datetime.now()
+        DTG = str(DTG.strftime("scan-%Y%m%d%H%M%S"))
+        location = args.project_location + '/' + DTG + '/'
 
     start = datetime.now()
 
@@ -83,7 +88,6 @@ if __name__ == '__main__':
     POOL_SIZE = args.threads
 
     create.projfile(location)
-
 
 
 # take our scope and get a list of active hosts

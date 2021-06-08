@@ -20,7 +20,7 @@ optional arguments:
   -l PROJECT_LOCATION, --location PROJECT_LOCATION
                         Location where to save the project
   -O OOS_FILE, --outofscope OOS_FILE
-                        Location of IP's not to scan
+                        Location of IPs not to scan
   -U, --udp             Perform UDP scan of targets
   -T THREADS, --threads THREADS
                         Number of concurrent nmap scans. Default is 5
@@ -42,4 +42,8 @@ Optional:
  - testssl.sh
  - Shodan.io API key
  - Discord webhook
+
+To Do:
+ - Customise discovery, remove arp etc.
+
 

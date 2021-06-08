@@ -18,8 +18,8 @@ def checkdir(location):
             logdata = colored("[*] SAVING PROJECT IN {0}".format(location), 'yellow')
         appendlog(location, logdata)
     else:
-        appendlog(location, colored("[!] {0} IS NOT A DIRECTORY BOZO!".format(location), 'red'))
-        exit(99)
+        projfile(location)
+        appendlog(location, colored("[!] CREATING DIR {0}!".format(location), 'red'))
     return location
 
 
@@ -27,7 +27,7 @@ def projfile(location):
     if os.path.exists(location):
         appendlog(location, colored("[*] {0} ALREADY EXISTS".format(location), 'yellow'))
     else:
-        os.mkdir(location)
+        os.makedirs(location)
     return location
 
 
