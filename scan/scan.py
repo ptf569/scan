@@ -4,7 +4,7 @@ import argparse
 from termcolor import colored
 from datetime import datetime
 from multiprocessing import Pool
-from Modules import *
+from components import *
 import os
 
 scope = []
@@ -26,6 +26,7 @@ By PTF569                              """, 'blue')
 
 
 #================ MAIN ========================
+
 
 if __name__ == '__main__':
     if os.geteuid() != 0:
@@ -98,7 +99,7 @@ if __name__ == '__main__':
         for host in targets:
             lookup.shodanSearch(host, SHODAN_API_KEY, location)
     except:
-        create.appendlog(location, 'NO SHODAN KEY, PLEASE ENTER YOUR API KEY ON LINE 13 OF main.py')
+        create.appendlog(location, 'NO SHODAN KEY, PLEASE ENTER YOUR API KEY ON LINE 13 OF scan.py')
 
 
 # Start our pool of nmap scans
@@ -129,7 +130,7 @@ if __name__ == '__main__':
                 ssl.append(p.starmap(scans.testssl, scan))
 
         else:
-            print('If you rather testsslsh, please enter its location on line 14, or use ')
+            print('If you rather testssl.sh, please enter its location on line 14, or use --testssl option')
             scan = [(location, target, rescan) for target in targets]
             with Pool(int(POOL_SIZE)) as p:
                 ssl.append(p.starmap(scans.sslscan, scan))
@@ -138,7 +139,7 @@ if __name__ == '__main__':
     if args.udp:
         udp = [(target, location) for target in targets]
         with Pool(int(POOL_SIZE)) as p:
-            scan.append(p.starmap(scan.topudpports, udp))
+            scan.append(p.starmap(scans.topudpports, udp))
 
 # Our end point
     finish = datetime.now()
@@ -149,5 +150,8 @@ if __name__ == '__main__':
     create.discord(create.webhook, "Complete", "[\o/] PROGRAM FINISHED AT {0} ".format(finish))
 
 # ===================================================================
+
+
+
 
 

@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from termcolor import colored
-from Modules import create
+from . import create
 from .parser import ports, parse
 import os
 import re
@@ -77,7 +77,7 @@ def testssl(testssl, location, target, rescan):
         print(testssl)
         os.system(testssl)
     else:
-        create.appendlog(location, colored("[!] TESTSSL on target {0} FAILED, CHECK config.ini,"
+        create.appendlog(location, colored("[!] TESTSSL on target {0} FAILED, CHECK config,"
                                     " attempting SSLSCAN".format(target), 'red'))
         sslscan(location, target, rescan)
 

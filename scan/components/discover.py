@@ -4,8 +4,7 @@ import nmap
 import os
 from termcolor import colored
 from datetime import datetime
-from Modules import create
-
+from . import create
 
 nm = nmap.PortScanner()
 
