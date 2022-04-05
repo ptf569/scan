@@ -2,10 +2,12 @@
 
 Network scanning script to drive recon tools.
 
-Install with ```bash pip3 install -r requirements.txt```
+Install with ```sudo pip3 install -r requirements.txt```
+
+Then from the 'scan' directory
 
 ```bash
-./scan.py -h                                                                                                                                                                                                                       130 ⨯
+sudo ./scan.py -h                                                                                                                                                                                                                       130 ⨯
 usage: A small program to automate some host discovery and some basic scanning [-h] [-t TARGETS] [-s SUBNET] [-R] [-n PROJECT_NAME] [-l PROJECT_LOCATION] [-O OOS_FILE] [-U] [-T THREADS] [-y TESTSSL] [-z SHODAN]
 
 optional arguments:
